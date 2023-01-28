@@ -1,6 +1,11 @@
-import { token, Token, TokenType } from "../token/token.ts";
+import { lookupIdent, token, Token, TokenType, Uint8 } from "../token/token.ts";
 
-type Uint8 = string | number;
+interface ILexer {
+  input: string;
+  position?: number;
+  readPosition?: number;
+  ch?: Uint8;
+}
 
 export class Lexer {
   private input: string;
@@ -8,21 +13,22 @@ export class Lexer {
   private readPosition: number; // これから読み込む位置 (現在の文字の次)
   private ch: Uint8; // 現在検査中の文字
 
-  constructor(input: string) {
-    this.input = input;
-    this.position = 0;
-    this.readPosition = 0;
-    this.ch = this.input[this.readPosition];
+  constructor(_lexer: ILexer) {
+    this.input = _lexer.input;
+    this.position = _lexer.position ?? 0;
+    this.readPosition = _lexer.readPosition ?? 0;
+    this.ch = _lexer.ch ?? "";
+
     this.readChar();
   }
 
   /**
    * 次の1文字を読んでinput文字列の現在位置を進める
    */
-  readChar() {
+  private readChar(): void {
     // 入力が終端に到達したかチェック
     if (this.readPosition >= this.input.length) {
-      this.ch = "";
+      this.ch = token.EOF;
     } else {
       this.ch = this.input[this.readPosition];
     }
@@ -35,8 +41,10 @@ export class Lexer {
    * トークンを返す前に入力のポインタを進めて、次に nextToken() を呼んだ時に this.ch フィールドが更新されて居るようにする
    * @returns Token
    */
-  nextToken(): Token {
+  public nextToken(): Token {
     let tok: Token;
+
+    this.skipWhiteSpace();
 
     switch (this.ch) {
       case "=":
@@ -64,7 +72,23 @@ export class Lexer {
         tok = this.newToken(token.RBRACE, this.ch);
         break;
       default:
-        tok = this.newToken(token.EOF, "");
+        if (this.isLetter(this.ch)) {
+          const literal = this.readIdentifier();
+          const type = lookupIdent(literal);
+          tok = this.newToken(type, literal);
+          return tok;
+          // memo: なぜ早期returnが必要か
+          // readIdentifier() の呼び出しの中で readChar() を繰り返し呼んでおり、
+          // readPositionフィールド と positionフィールド が現在の識別子の最後の文字を過ぎたところまで進んでいる。
+          // そのためswitch文の後でさらに readChar() を呼ぶ必要がない。
+        } else if (this.isDigit(this.ch)) {
+          const literal = this.readNumber();
+          const type = token.INT;
+          tok = this.newToken(type, literal);
+          return tok;
+        } else {
+          tok = this.newToken(token.ILLEGAL, this.ch);
+        }
     }
 
     this.readChar();
@@ -72,6 +96,53 @@ export class Lexer {
   }
 
   private newToken(tokenType: TokenType, ch: Uint8): Token {
-    return new Token({ type: tokenType, literal: ch.toString() });
+    return new Token({ type: tokenType, literal: ch });
+  }
+
+  /**
+   * 識別子を読んで、非英字に到達するまで字句解析器の位置を進める
+   */
+  private readIdentifier(): string {
+    const position = this.position;
+    while (this.isLetter(this.ch)) {
+      this.readChar();
+    }
+    return this.input.slice(position, this.position);
+  }
+
+  /**
+   * 与えられた引数が英字かどうかを判定
+   * @param ch Uint8
+   * @returns boolean
+   */
+  private isLetter(ch: Uint8): boolean {
+    return ("a" <= ch && ch <= "z") || ("A" <= ch && ch <= "Z") || ch === "_";
+  }
+
+  /**
+   * Monkeyではホワイトスペースが意味を持たないためスキップする
+   * @param ch Uint8
+   */
+  private skipWhiteSpace(): void {
+    while (
+      this.ch === " " ||
+      this.ch === "\t" ||
+      this.ch === "\n" ||
+      this.ch === "\r"
+    ) {
+      this.readChar();
+    }
+  }
+
+  private readNumber(): string {
+    const position = this.position;
+    while (this.isDigit(this.ch)) {
+      this.readChar();
+    }
+    return this.input.slice(position, this.position);
+  }
+
+  private isDigit(ch: Uint8): boolean {
+    return "0" <= ch && ch <= "9";
   }
 }

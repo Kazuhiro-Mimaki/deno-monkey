@@ -12,11 +12,14 @@ export type TokenType =
   | "{"
   | "}"
   | "FUNCTION"
+  | "LET"
   | "EOF";
+
+export type Uint8 = string | number;
 
 export class Token {
   public readonly type: TokenType;
-  public readonly literal: string;
+  public literal: Uint8;
 
   constructor(_token: Token) {
     this.type = _token.type;
@@ -49,3 +52,18 @@ export const token = {
   FUNCTION: "FUNCTION",
   LET: "LET",
 } as const;
+
+const keywords: Map<string, TokenType> = new Map([
+  ["fn", token.FUNCTION],
+  ["let", token.LET],
+]);
+
+/**
+ * 渡された識別子がキーワードかどうかチェック
+ * @param ident string
+ * @returns TokenType
+ */
+export const lookupIdent = (ident: string): TokenType => {
+  const tok = keywords.get(ident);
+  return tok || token.IDENT;
+};
