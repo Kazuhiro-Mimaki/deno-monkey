@@ -16,7 +16,10 @@ let add = fn(x, y) {
   x + y;
 };
 
-let result = add(five, ten);`;
+let result = add(five, ten);
+!-/*5;
+5 < 10 > 5;
+`;
 
   const tests: Array<{ expectedType: TokenType; expectedLiteral: string }> = [
     { expectedType: token.LET, expectedLiteral: "let" },
@@ -54,7 +57,19 @@ let result = add(five, ten);`;
     { expectedType: token.COMMA, expectedLiteral: "," },
     { expectedType: token.IDENT, expectedLiteral: "ten" },
     { expectedType: token.RPAREN, expectedLiteral: ")" },
-    { expectedType: token.LBRACE, expectedLiteral: ";" },
+    { expectedType: token.SEMICOLON, expectedLiteral: ";" },
+    { expectedType: token.BANG, expectedLiteral: "!" },
+    { expectedType: token.MINUS, expectedLiteral: "-" },
+    { expectedType: token.SLASH, expectedLiteral: "/" },
+    { expectedType: token.ASTERISK, expectedLiteral: "*" },
+    { expectedType: token.INT, expectedLiteral: "5" },
+    { expectedType: token.SEMICOLON, expectedLiteral: ";" },
+    { expectedType: token.INT, expectedLiteral: "5" },
+    { expectedType: token.LT, expectedLiteral: "<" },
+    { expectedType: token.INT, expectedLiteral: "10" },
+    { expectedType: token.GT, expectedLiteral: ">" },
+    { expectedType: token.INT, expectedLiteral: "5" },
+    { expectedType: token.SEMICOLON, expectedLiteral: ";" },
     { expectedType: token.EOF, expectedLiteral: "" },
   ];
 
@@ -62,8 +77,6 @@ let result = add(five, ten);`;
 
   tests.forEach((test) => {
     const token: Token = l.nextToken();
-
-    console.log(token.literal);
 
     if (token.type !== test.expectedType) {
       throw new Error(
