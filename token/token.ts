@@ -1,4 +1,18 @@
-export type TokenType = string;
+export type TokenType =
+  | "ILLEGAL"
+  | "EOF"
+  | "IDENT"
+  | "INT"
+  | "="
+  | "+"
+  | ","
+  | ";"
+  | "("
+  | ")"
+  | "{"
+  | "}"
+  | "FUNCTION"
+  | "EOF";
 
 export class Token {
   public readonly type: TokenType;
@@ -24,7 +38,7 @@ export const token = {
 
   // デリミタ
   COMMA: ",",
-  SEMICOLON: ",",
+  SEMICOLON: ";",
 
   LPAREN: "(",
   RPAREN: ")",
@@ -34,4 +48,4 @@ export const token = {
   // キーワード
   FUNCTION: "FUNCTION",
   LET: "LET",
-};
+} as const;
