@@ -1,30 +1,32 @@
-type TokenType = string;
+export type TokenType = string;
 
-type Token = {
+export type Token = {
   Type: TokenType;
   Literal: string;
 };
 
-const ILLEGAL = "ILLEGAL";
-const EOF = "EOF";
+export const token = {
+  ILLEGAL: "ILLEGAL",
+  EOF: "EOF",
 
-// 識別子 + リテラル
-const IDENT = "IDENT"; // add, foobar, x, y, ...
-const INT = "INT"; // 1343456
+  // 識別子 + リテラル
+  IDENT: "IDENT", // add, foobar, x, y, ...
+  INT: "INT", // 1343456
 
-// 演算子
-const ASSIGN = "=";
-const PLUS = "+";
+  // 演算子
+  ASSIGN: "=",
+  PLUS: "+",
 
-// デリミタ
-const COMMA = ",";
-const SEMICOLON = ";";
+  // デリミタ
+  COMMA: ",",
+  SEMICOLON: ",",
 
-const LPAREN = "(";
-const RPAREN = ")";
-const LBRACE = "{";
-const RBRACE = "}";
+  LPAREN: "(",
+  RPAREN: ")",
+  LBRACE: "{",
+  RBRACE: "}",
 
-// キーワード
-const FUNCTION = "FUNCTION";
-const LET = "LET";
+  // キーワード
+  FUNCTION: "FUNCTION",
+  LET: "LET",
+};
