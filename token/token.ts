@@ -1,9 +1,14 @@
 export type TokenType = string;
 
-export type Token = {
-  Type: TokenType;
-  Literal: string;
-};
+export class Token {
+  public readonly type: TokenType;
+  public readonly literal: string;
+
+  constructor(_token: Token) {
+    this.type = _token.type;
+    this.literal = _token.literal;
+  }
+}
 
 export const token = {
   ILLEGAL: "ILLEGAL",

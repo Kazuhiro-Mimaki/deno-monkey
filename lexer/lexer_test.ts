@@ -1,4 +1,5 @@
 import { Token, TokenType, token } from "../token/token.ts";
+import { Lexer } from "./lexer.ts";
 
 // 字句解析器のゴール
 // ソースコードを入力として受け取り、出力としてそのソースコードを表現するトークン列を返す
@@ -18,20 +19,20 @@ Deno.test("test next token", () => {
     { expectedType: token.EOF, expectedLiteral: "" },
   ];
 
-  const l = new New(input);
+  const l = new Lexer(input);
 
   tests.forEach((test) => {
     const token: Token = l.nextToken();
 
-    if (token.Type !== test.expectedType) {
+    if (token.type !== test.expectedType) {
       throw new Error(
-        `${test} - token type is wrong. expected: ${test.expectedType}, got: ${token.Type}`
+        `${test} - token type is wrong. expected: ${test.expectedType}, got: ${token.type}`
       );
     }
 
-    if (token.Literal !== test.expectedLiteral) {
+    if (token.literal !== test.expectedLiteral) {
       throw new Error(
-        `${test} - literal is wrong. expected: ${test.expectedLiteral}, got: ${token.Literal}`
+        `${test} - literal is wrong. expected: ${test.expectedLiteral}, got: ${token.literal}`
       );
     }
   });
