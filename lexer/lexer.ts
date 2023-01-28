@@ -48,7 +48,14 @@ export class Lexer {
 
     switch (this.ch) {
       case "=":
-        tok = this.newToken(token.ASSIGN, this.ch);
+        if (this.peekChar() === "=") {
+          const ch = this.ch;
+          this.readChar();
+          const literal = ch + this.ch;
+          tok = this.newToken(token.EQ, literal);
+        } else {
+          tok = this.newToken(token.ASSIGN, this.ch);
+        }
         break;
       case ";":
         tok = this.newToken(token.SEMICOLON, this.ch);
@@ -69,7 +76,15 @@ export class Lexer {
         tok = this.newToken(token.MINUS, this.ch);
         break;
       case "!":
-        tok = this.newToken(token.BANG, this.ch);
+        if (this.peekChar() === "=") {
+          // ローカル変数に保存することで、現在の文字を失わず、かつ字句解析器を安全に前に進められる
+          const ch = this.ch;
+          this.readChar();
+          const literal = ch + this.ch;
+          tok = this.newToken(token.NOT_EQ, literal);
+        } else {
+          tok = this.newToken(token.BANG, this.ch);
+        }
         break;
       case "/":
         tok = this.newToken(token.SLASH, this.ch);
@@ -162,5 +177,15 @@ export class Lexer {
 
   private isDigit(ch: Uint8): boolean {
     return "0" <= ch && ch <= "9";
+  }
+
+  /**
+   * 入力を先読みする(先には進まず、あくまで入力を前もって覗き見するだけ)
+   * @returns Uint8
+   */
+  private peekChar(): Uint8 {
+    return this.readPosition >= this.input.length
+      ? 0
+      : this.input[this.readPosition];
   }
 }

@@ -19,6 +19,13 @@ export type TokenType =
   | "}"
   | "FUNCTION"
   | "LET"
+  | "TRUE"
+  | "FALSE"
+  | "IF"
+  | "ELSE"
+  | "RETURN"
+  | "=="
+  | "!="
   | "EOF";
 
 export type Uint8 = string | number;
@@ -64,11 +71,24 @@ export const token = {
   // キーワード
   FUNCTION: "FUNCTION",
   LET: "LET",
+  TRUE: "TRUE",
+  FALSE: "FALSE",
+  IF: "IF",
+  ELSE: "ELSE",
+  RETURN: "RETURN",
+
+  EQ: "==",
+  NOT_EQ: "!=",
 } as const;
 
 const keywords: Map<string, TokenType> = new Map([
   ["fn", token.FUNCTION],
   ["let", token.LET],
+  ["true", token.TRUE],
+  ["false", token.FALSE],
+  ["if", token.IF],
+  ["else", token.ELSE],
+  ["return", token.RETURN],
 ]);
 
 /**
