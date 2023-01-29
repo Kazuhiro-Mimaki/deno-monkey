@@ -104,6 +104,9 @@ export class Lexer {
       case '}':
         tok = this.newToken(token.RBRACE, this.ch);
         break;
+      case 'EOF':
+        tok = this.newToken(token.EOF, '');
+        break;
       default:
         if (this.isLetter(this.ch)) {
           const literal = this.readIdentifier();
