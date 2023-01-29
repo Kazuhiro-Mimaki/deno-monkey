@@ -1,32 +1,32 @@
 export type TokenType =
-  | "ILLEGAL"
-  | "EOF"
-  | "IDENT"
-  | "INT"
-  | "="
-  | "+"
-  | "-"
-  | "!"
-  | "*"
-  | "/"
-  | "<"
-  | ">"
-  | ","
-  | ";"
-  | "("
-  | ")"
-  | "{"
-  | "}"
-  | "FUNCTION"
-  | "LET"
-  | "TRUE"
-  | "FALSE"
-  | "IF"
-  | "ELSE"
-  | "RETURN"
-  | "=="
-  | "!="
-  | "EOF";
+  | 'ILLEGAL'
+  | 'EOF'
+  | 'IDENT'
+  | 'INT'
+  | '='
+  | '+'
+  | '-'
+  | '!'
+  | '*'
+  | '/'
+  | '<'
+  | '>'
+  | ','
+  | ';'
+  | '('
+  | ')'
+  | '{'
+  | '}'
+  | 'FUNCTION'
+  | 'LET'
+  | 'TRUE'
+  | 'FALSE'
+  | 'IF'
+  | 'ELSE'
+  | 'RETURN'
+  | '=='
+  | '!='
+  | 'EOF';
 
 export type Uint8 = string | number;
 
@@ -41,54 +41,54 @@ export class Token {
 }
 
 export const token = {
-  ILLEGAL: "ILLEGAL",
-  EOF: "EOF",
+  ILLEGAL: 'ILLEGAL',
+  EOF: 'EOF',
 
   // 識別子 + リテラル
-  IDENT: "IDENT", // add, foobar, x, y, ...
-  INT: "INT", // 1343456
+  IDENT: 'IDENT', // add, foobar, x, y, ...
+  INT: 'INT', // 1343456
 
   // 演算子
-  ASSIGN: "=",
-  PLUS: "+",
-  MINUS: "-",
-  BANG: "!",
-  ASTERISK: "*",
-  SLASH: "/",
+  ASSIGN: '=',
+  PLUS: '+',
+  MINUS: '-',
+  BANG: '!',
+  ASTERISK: '*',
+  SLASH: '/',
 
-  LT: "<",
-  GT: ">",
+  LT: '<',
+  GT: '>',
 
   // デリミタ
-  COMMA: ",",
-  SEMICOLON: ";",
+  COMMA: ',',
+  SEMICOLON: ';',
 
-  LPAREN: "(",
-  RPAREN: ")",
-  LBRACE: "{",
-  RBRACE: "}",
+  LPAREN: '(',
+  RPAREN: ')',
+  LBRACE: '{',
+  RBRACE: '}',
 
   // キーワード
-  FUNCTION: "FUNCTION",
-  LET: "LET",
-  TRUE: "TRUE",
-  FALSE: "FALSE",
-  IF: "IF",
-  ELSE: "ELSE",
-  RETURN: "RETURN",
+  FUNCTION: 'FUNCTION',
+  LET: 'LET',
+  TRUE: 'TRUE',
+  FALSE: 'FALSE',
+  IF: 'IF',
+  ELSE: 'ELSE',
+  RETURN: 'RETURN',
 
-  EQ: "==",
-  NOT_EQ: "!=",
+  EQ: '==',
+  NOT_EQ: '!=',
 } as const;
 
 const keywords: Map<string, TokenType> = new Map([
-  ["fn", token.FUNCTION],
-  ["let", token.LET],
-  ["true", token.TRUE],
-  ["false", token.FALSE],
-  ["if", token.IF],
-  ["else", token.ELSE],
-  ["return", token.RETURN],
+  ['fn', token.FUNCTION],
+  ['let', token.LET],
+  ['true', token.TRUE],
+  ['false', token.FALSE],
+  ['if', token.IF],
+  ['else', token.ELSE],
+  ['return', token.RETURN],
 ]);
 
 /**

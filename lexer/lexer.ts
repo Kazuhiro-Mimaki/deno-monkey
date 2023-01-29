@@ -1,4 +1,4 @@
-import { lookupIdent, token, Token, TokenType, Uint8 } from "../token/token.ts";
+import { lookupIdent, token, Token, TokenType, Uint8 } from '../token/token.ts';
 
 interface ILexer {
   input: string;
@@ -17,7 +17,7 @@ export class Lexer {
     this.input = _lexer.input;
     this.position = _lexer.position ?? 0;
     this.readPosition = _lexer.readPosition ?? 0;
-    this.ch = _lexer.ch ?? "";
+    this.ch = _lexer.ch ?? '';
 
     this.readChar();
   }
@@ -47,8 +47,8 @@ export class Lexer {
     this.skipWhiteSpace();
 
     switch (this.ch) {
-      case "=":
-        if (this.peekChar() === "=") {
+      case '=':
+        if (this.peekChar() === '=') {
           const ch = this.ch;
           this.readChar();
           const literal = ch + this.ch;
@@ -57,26 +57,26 @@ export class Lexer {
           tok = this.newToken(token.ASSIGN, this.ch);
         }
         break;
-      case ";":
+      case ';':
         tok = this.newToken(token.SEMICOLON, this.ch);
         break;
-      case "(":
+      case '(':
         tok = this.newToken(token.LPAREN, this.ch);
         break;
-      case ")":
+      case ')':
         tok = this.newToken(token.RPAREN, this.ch);
         break;
-      case ",":
+      case ',':
         tok = this.newToken(token.COMMA, this.ch);
         break;
-      case "+":
+      case '+':
         tok = this.newToken(token.PLUS, this.ch);
         break;
-      case "-":
+      case '-':
         tok = this.newToken(token.MINUS, this.ch);
         break;
-      case "!":
-        if (this.peekChar() === "=") {
+      case '!':
+        if (this.peekChar() === '=') {
           // ローカル変数に保存することで、現在の文字を失わず、かつ字句解析器を安全に前に進められる
           const ch = this.ch;
           this.readChar();
@@ -86,22 +86,22 @@ export class Lexer {
           tok = this.newToken(token.BANG, this.ch);
         }
         break;
-      case "/":
+      case '/':
         tok = this.newToken(token.SLASH, this.ch);
         break;
-      case "*":
+      case '*':
         tok = this.newToken(token.ASTERISK, this.ch);
         break;
-      case "<":
+      case '<':
         tok = this.newToken(token.LT, this.ch);
         break;
-      case ">":
+      case '>':
         tok = this.newToken(token.GT, this.ch);
         break;
-      case "{":
+      case '{':
         tok = this.newToken(token.LBRACE, this.ch);
         break;
-      case "}":
+      case '}':
         tok = this.newToken(token.RBRACE, this.ch);
         break;
       default:
@@ -149,7 +149,7 @@ export class Lexer {
    * @returns boolean
    */
   private isLetter(ch: Uint8): boolean {
-    return ("a" <= ch && ch <= "z") || ("A" <= ch && ch <= "Z") || ch === "_";
+    return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch === '_';
   }
 
   /**
@@ -158,10 +158,10 @@ export class Lexer {
    */
   private skipWhiteSpace(): void {
     while (
-      this.ch === " " ||
-      this.ch === "\t" ||
-      this.ch === "\n" ||
-      this.ch === "\r"
+      this.ch === ' ' ||
+      this.ch === '\t' ||
+      this.ch === '\n' ||
+      this.ch === '\r'
     ) {
       this.readChar();
     }
@@ -176,7 +176,7 @@ export class Lexer {
   }
 
   private isDigit(ch: Uint8): boolean {
-    return "0" <= ch && ch <= "9";
+    return '0' <= ch && ch <= '9';
   }
 
   /**
