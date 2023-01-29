@@ -11,7 +11,7 @@ export class Lexer {
   private input: string;
   private position: number; // 入力における現在の位置 (現在の文字を指し示す)
   private readPosition: number; // これから読み込む位置 (現在の文字の次)
-  private ch: Uint8; // 現在検査中の文字
+  public ch: Uint8; // 現在検査中の文字
 
   constructor(_lexer: ILexer) {
     this.input = _lexer.input;
@@ -151,7 +151,7 @@ export class Lexer {
    * @param ch Uint8
    * @returns boolean
    */
-  private isLetter(ch: Uint8): boolean {
+  public isLetter(ch: Uint8): boolean {
     return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z') || ch === '_';
   }
 
