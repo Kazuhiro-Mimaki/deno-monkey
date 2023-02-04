@@ -4,15 +4,15 @@ import { Identifier, LetStatement, Program, Statement } from '../ast/ast.ts';
 
 interface IParser {
   readonly l: Lexer;
-  curToken?: Token;
-  peekToken?: Token;
+  curToken: Token;
+  peekToken: Token;
   errors: string[];
 }
 
 export class Parser {
   private readonly l: Lexer;
-  private curToken?: Token;
-  private peekToken?: Token;
+  private curToken: Token;
+  private peekToken: Token;
   readonly errors: string[];
 
   constructor(_parser: IParser) {
@@ -35,7 +35,7 @@ export class Parser {
   public parseProgram(): Program {
     // ASTのルートノードを生成
     const program = new Program({ statements: [] });
-    while (this.curToken?.type != token.EOF) {
+    while (this.curToken.type != token.EOF) {
       const stmt = this.parseStatement();
       if (stmt !== null) {
         program.statements.push(stmt);
@@ -49,7 +49,7 @@ export class Parser {
    * 文を構文解析する
    */
   private parseStatement(): Statement | null {
-    switch (this.curToken?.type) {
+    switch (this.curToken.type) {
       case token.LET:
         return this.parseLetStatement();
       default:
@@ -67,10 +67,10 @@ export class Parser {
     }
 
     const stmt = new LetStatement({
-      token: this.curToken as Token,
+      token: this.curToken,
       name: new Identifier({
-        token: this.curToken as Token,
-        value: this.curToken?.literal as string,
+        token: this.curToken,
+        value: this.curToken.literal,
       }),
       value: '',
     });
@@ -84,11 +84,11 @@ export class Parser {
   }
 
   private curTokenIs(t: TokenType): boolean {
-    return this.curToken?.type === t;
+    return this.curToken.type === t;
   }
 
   private peekTokenIs(t: TokenType): boolean {
-    return this.peekToken?.type === t;
+    return this.peekToken.type === t;
   }
 
   /**
@@ -106,7 +106,7 @@ export class Parser {
   }
 
   private peekError(t: TokenType) {
-    const msg = `expected next token to be ${t}, go ${this.peekToken?.type} instead`;
+    const msg = `expected next token to be ${t}, go ${this.peekToken.type} instead`;
     this.errors.push(msg);
   }
 }

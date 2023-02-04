@@ -1,4 +1,5 @@
 export type TokenType =
+  | 'DEFAULT'
   | 'ILLEGAL'
   | 'EOF'
   | 'IDENT'
@@ -25,8 +26,7 @@ export type TokenType =
   | 'ELSE'
   | 'RETURN'
   | '=='
-  | '!='
-  | 'EOF';
+  | '!=';
 
 export type Uint8 = string | number;
 
@@ -41,6 +41,9 @@ export class Token {
 }
 
 export const token = {
+  // 書籍にはないカスタマイズ
+  DEFAULT: 'DEFAULT',
+
   ILLEGAL: 'ILLEGAL',
   EOF: 'EOF',
 

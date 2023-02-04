@@ -9,7 +9,7 @@ export type Node = {
 
 export type Expression = Node & {
   token: Token;
-  value: string;
+  value: Uint8;
   expressionNode: () => void;
 };
 
@@ -41,12 +41,12 @@ export class Program {
 
 interface IIdentifier {
   token: Token;
-  value: string;
+  value: Uint8;
 }
 
 export class Identifier implements Expression {
   readonly token: Token; // token.IDENTトークン
-  readonly value: string;
+  readonly value: Uint8;
 
   constructor(_identifier: IIdentifier) {
     this.token = _identifier.token;

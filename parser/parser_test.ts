@@ -1,7 +1,7 @@
 import { Parser } from './parser.ts';
 import { Lexer } from '../lexer/lexer.ts';
 import { Statement } from '../ast/ast.ts';
-import { token, keywords } from '../token/token.ts';
+import { token, keywords, Token } from '../token/token.ts';
 
 const testLetStatement = (s: Statement, name: string): boolean => {
   if (s.tokenLiteral() !== keywords.get(token.LET)) {
@@ -37,16 +37,22 @@ const checkParserErrors = (p: Parser) => {
 
 Deno.test('test let statements', () => {
   const input = `
-    let x 5;
-    let = 10;
-    let 838383;
+    let x = 5;
+    let y = 10;
+    let foobar = 838383;
   `;
 
   const l = new Lexer({ input });
-  const p = new Parser({ l: l, errors: [] });
+  const p = new Parser({
+    l: l,
+    curToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    peekToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    errors: [],
+  });
 
   const program = p.parseProgram();
   checkParserErrors(p);
+
   if (!program) {
     throw new Error('parseProgram() returned null');
   }
