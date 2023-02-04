@@ -81,7 +81,7 @@ export const token = {
   NOT_EQ: '!=',
 } as const;
 
-const keywords: Map<string, TokenType> = new Map([
+export const keywords: Map<string, TokenType> = new Map([
   ['fn', token.FUNCTION],
   ['let', token.LET],
   ['true', token.TRUE],
