@@ -20,13 +20,17 @@ export type Statement = Node & {
   statementNode: () => void;
 };
 
+interface IProgram {
+  statements: Statement[];
+}
+
 /**
  * 構文解析器が生成する全てのASTのルートノードになるもの
  */
 export class Program {
   public readonly statements: Statement[];
 
-  constructor(_program: Program) {
+  constructor(_program: IProgram) {
     this.statements = _program.statements;
   }
 
@@ -35,11 +39,16 @@ export class Program {
   }
 }
 
+interface IIdentifier {
+  token: Token;
+  value: string;
+}
+
 export class Identifier implements Expression {
   readonly token: Token; // token.IDENTトークン
   readonly value: string;
 
-  constructor(_identifier: Identifier) {
+  constructor(_identifier: IIdentifier) {
     this.token = _identifier.token;
     this.value = _identifier.value;
   }
@@ -50,12 +59,18 @@ export class Identifier implements Expression {
   }
 }
 
+interface ILetStatement {
+  token: Token;
+  name: Identifier;
+  value: string;
+}
+
 export class LetStatement implements Statement {
   readonly token: Token; // token.LETトークン
   readonly name: Identifier; // 識別子を保持する
   readonly value: string; // 値を生成する式を保持する
 
-  constructor(_letStatement: LetStatement) {
+  constructor(_letStatement: ILetStatement) {
     this.token = _letStatement.token;
     this.name = _letStatement.name;
     this.value = _letStatement.value;

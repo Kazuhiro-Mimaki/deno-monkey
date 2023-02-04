@@ -1,6 +1,6 @@
 import { Lexer } from '../lexer/lexer.ts';
-import { Token } from '../token/token.ts';
-import { Program } from '../ast/ast.ts';
+import { token, Token, TokenType } from '../token/token.ts';
+import { Identifier, LetStatement, Program, Statement } from '../ast/ast.ts';
 
 interface IParser {
   readonly l: Lexer;
@@ -27,7 +27,73 @@ export class Parser {
     this.peekToken = this.l.nextToken();
   }
 
-  public parseProgram(): Program | null {
-    return null;
+  // private parseLetStatement(): LetStatement {}
+
+  public parseProgram(): Program {
+    // ASTのルートノードを生成
+    const program = new Program({ statements: [] });
+    while (this.curToken?.type != token.EOF) {
+      const stmt = this.parseStatement();
+      if (stmt !== null) {
+        program.statements.push(stmt);
+      }
+      this.nextToken();
+    }
+    return program;
+  }
+
+  /**
+   * 文を構文解析する
+   */
+  private parseStatement(): Statement | null {
+    switch (this.curToken?.type) {
+      case token.LET:
+        return this.parseLetStatement();
+      default:
+        return null;
+    }
+  }
+
+  private parseLetStatement(): LetStatement | null {
+    if (!this.expectPeek(token.IDENT)) {
+      return null;
+    }
+
+    if (!this.expectPeek(token.ASSIGN)) {
+      return null;
+    }
+
+    const stmt = new LetStatement({
+      token: this.curToken as Token,
+      name: new Identifier({
+        token: this.curToken as Token,
+        value: this.curToken?.literal as string,
+      }),
+      value: '',
+    });
+
+    // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+    while (!this.curTokenIs(token.SEMICOLON)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
+  private curTokenIs(t: TokenType): boolean {
+    return this.curToken?.type === t;
+  }
+
+  private peekTokenIs(t: TokenType): boolean {
+    return this.peekToken?.type === t;
+  }
+
+  private expectPeek(t: TokenType): boolean {
+    if (this.peekTokenIs(t)) {
+      this.nextToken();
+      return true;
+    } else {
+      return false;
+    }
   }
 }
