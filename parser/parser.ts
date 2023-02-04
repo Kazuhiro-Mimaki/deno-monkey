@@ -6,17 +6,20 @@ interface IParser {
   readonly l: Lexer;
   curToken?: Token;
   peekToken?: Token;
+  errors: string[];
 }
 
 export class Parser {
   private readonly l: Lexer;
   private curToken?: Token;
   private peekToken?: Token;
+  readonly errors: string[];
 
   constructor(_parser: IParser) {
     this.l = _parser.l;
     this.curToken = _parser.curToken;
     this.peekToken = _parser.peekToken;
+    this.errors = _parser.errors;
     // 2つトークンを読み込む。curTokenとpeekTokenの両方がセットされる。
     this.nextToken();
     this.nextToken();
@@ -88,12 +91,22 @@ export class Parser {
     return this.peekToken?.type === t;
   }
 
+  /**
+   * アサーション関数
+   * peekTokenの型をチェックし、それが正しい場合のみnextTokenを呼んでトークンを進める
+   */
   private expectPeek(t: TokenType): boolean {
     if (this.peekTokenIs(t)) {
       this.nextToken();
       return true;
     } else {
+      this.peekError(t);
       return false;
     }
+  }
+
+  private peekError(t: TokenType) {
+    const msg = `expected next token to be ${t}, go ${this.peekToken?.type} instead`;
+    this.errors.push(msg);
   }
 }

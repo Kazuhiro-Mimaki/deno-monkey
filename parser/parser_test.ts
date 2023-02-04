@@ -22,17 +22,31 @@ const testLetStatement = (s: Statement, name: string): boolean => {
   return true;
 };
 
+const checkParserErrors = (p: Parser) => {
+  const errors = p.errors;
+  if (errors.length === 0) {
+    return;
+  }
+
+  console.error(`parser has ${errors.length} errors`);
+  errors.forEach((msg) => {
+    console.error(`parser error: ${msg}`);
+  });
+  return;
+};
+
 Deno.test('test let statements', () => {
   const input = `
-    let x = 5;
-    let y = 10;
-    let foobar = 838383;
+    let x 5;
+    let = 10;
+    let 838383;
   `;
 
   const l = new Lexer({ input });
-  const p = new Parser({ l: l });
+  const p = new Parser({ l: l, errors: [] });
 
   const program = p.parseProgram();
+  checkParserErrors(p);
   if (!program) {
     throw new Error('parseProgram() returned null');
   }
