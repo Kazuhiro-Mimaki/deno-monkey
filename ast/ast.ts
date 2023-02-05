@@ -15,8 +15,6 @@ export type Expression = Node & {
 
 export type Statement = Node & {
   token: Token;
-  name: Identifier;
-  value: string;
   statementNode: () => void;
 };
 
@@ -67,13 +65,33 @@ interface ILetStatement {
 
 export class LetStatement implements Statement {
   readonly token: Token; // token.LETトークン
-  readonly name: Identifier; // 識別子を保持する
+  name: Identifier; // 識別子を保持する
   readonly value: string; // 値を生成する式を保持する
 
   constructor(_letStatement: ILetStatement) {
     this.token = _letStatement.token;
     this.name = _letStatement.name;
     this.value = _letStatement.value;
+  }
+
+  public statementNode() {}
+  public tokenLiteral(): Uint8 {
+    return this.token.literal;
+  }
+}
+
+interface IReturnStatement {
+  token: Token;
+  returnValue?: Expression;
+}
+
+export class ReturnStatement implements Statement {
+  readonly token: Token; // 'return' トークン
+  readonly returnValue?: Expression;
+
+  constructor(_returnStatement: IReturnStatement) {
+    this.token = _returnStatement.token;
+    this.returnValue = _returnStatement.returnValue;
   }
 
   public statementNode() {}

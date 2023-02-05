@@ -1,6 +1,12 @@
 import { Lexer } from '../lexer/lexer.ts';
 import { token, Token, TokenType } from '../token/token.ts';
-import { Identifier, LetStatement, Program, Statement } from '../ast/ast.ts';
+import {
+  Identifier,
+  LetStatement,
+  Program,
+  ReturnStatement,
+  Statement,
+} from '../ast/ast.ts';
 
 interface IParser {
   readonly l: Lexer;
@@ -20,6 +26,7 @@ export class Parser {
     this.curToken = _parser.curToken;
     this.peekToken = _parser.peekToken;
     this.errors = _parser.errors;
+
     // 2つトークンを読み込む。curTokenとpeekTokenの両方がセットされる。
     this.nextToken();
     this.nextToken();
@@ -35,7 +42,8 @@ export class Parser {
   public parseProgram(): Program {
     // ASTのルートノードを生成
     const program = new Program({ statements: [] });
-    while (this.curToken.type != token.EOF) {
+
+    while (this.curToken.type !== token.EOF) {
       const stmt = this.parseStatement();
       if (stmt !== null) {
         program.statements.push(stmt);
@@ -52,20 +60,14 @@ export class Parser {
     switch (this.curToken.type) {
       case token.LET:
         return this.parseLetStatement();
+      case token.RETURN:
+        return this.parseReturnStatement();
       default:
         return null;
     }
   }
 
   private parseLetStatement(): LetStatement | null {
-    if (!this.expectPeek(token.IDENT)) {
-      return null;
-    }
-
-    if (!this.expectPeek(token.ASSIGN)) {
-      return null;
-    }
-
     const stmt = new LetStatement({
       token: this.curToken,
       name: new Identifier({
@@ -74,6 +76,34 @@ export class Parser {
       }),
       value: '',
     });
+
+    if (!this.expectPeek(token.IDENT)) {
+      return null;
+    }
+
+    stmt.name = new Identifier({
+      token: this.curToken,
+      value: this.curToken.literal,
+    });
+
+    if (!this.expectPeek(token.ASSIGN)) {
+      return null;
+    }
+
+    // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
+    while (!this.curTokenIs(token.SEMICOLON)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
+  private parseReturnStatement(): ReturnStatement {
+    const stmt = new ReturnStatement({
+      token: this.curToken,
+    });
+
+    this.nextToken();
 
     // TODO: セミコロンに遭遇するまで式を読み飛ばしてしまっている
     while (!this.curTokenIs(token.SEMICOLON)) {

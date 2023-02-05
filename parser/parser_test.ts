@@ -1,22 +1,19 @@
 import { Parser } from './parser.ts';
 import { Lexer } from '../lexer/lexer.ts';
-import { Statement } from '../ast/ast.ts';
-import { token, keywords, Token } from '../token/token.ts';
+import { LetStatement } from '../ast/ast.ts';
+import { token, Token } from '../token/token.ts';
 
-const testLetStatement = (s: Statement, name: string): boolean => {
-  if (s.tokenLiteral() !== keywords.get(token.LET)) {
-    console.error(`s.tokenLiteral not 'let'. got: ${s.tokenLiteral}`);
-    return false;
+const testLetStatement = (s: LetStatement, name: string): boolean => {
+  if (s.tokenLiteral() !== 'let') {
+    throw new Error(`s.tokenLiteral not 'let'. got ${s.tokenLiteral()}`);
   }
 
   if (s.name.value != name) {
-    console.error(`s.name.value not ${name}. got ${s.name.value}`);
-    return false;
+    throw new Error(`s.name.value not ${name}. got ${s.name.value}`);
   }
 
   if (s.name.tokenLiteral() != name) {
-    console.error(`s.name.value not ${name}. got ${s.name.tokenLiteral()}`);
-    return false;
+    throw new Error(`s.name.value not ${name}. got ${s.name.tokenLiteral()}`);
   }
 
   return true;
@@ -29,9 +26,11 @@ const checkParserErrors = (p: Parser) => {
   }
 
   console.error(`parser has ${errors.length} errors`);
+
   errors.forEach((msg) => {
-    console.error(`parser error: ${msg}`);
+    throw new Error(`parser error: ${msg}`);
   });
+
   return;
 };
 
@@ -62,7 +61,7 @@ Deno.test('test let statements', () => {
     );
   }
 
-  const tests: Array<{ expectedIdentifier: string }> = [
+  const tests = [
     { expectedIdentifier: 'x' },
     { expectedIdentifier: 'y' },
     { expectedIdentifier: 'foobar' },
@@ -70,8 +69,42 @@ Deno.test('test let statements', () => {
 
   tests.forEach((test, i) => {
     const stmt = program.statements[i];
-    if (!testLetStatement(stmt, test.expectedIdentifier)) {
+    if (!testLetStatement(stmt as LetStatement, test.expectedIdentifier)) {
       return;
+    }
+  });
+});
+
+Deno.test('test return statements', () => {
+  const input = `
+    return 5;
+    return 10;
+    return 993322;
+  `;
+
+  const l = new Lexer({ input });
+  const p = new Parser({
+    l: l,
+    curToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    peekToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    errors: [],
+  });
+
+  const program = p.parseProgram();
+  checkParserErrors(p);
+
+  if (program.statements.length !== 3) {
+    throw new Error(
+      `program.statements does not contain 3 statements. got: ${program.statements.length}`
+    );
+  }
+
+  program.statements.forEach((_, i) => {
+    const stmt = program.statements[i];
+    if (stmt.tokenLiteral() !== 'return') {
+      throw new Error(
+        `stmt.tokenLiteral() not 'return', got ${stmt.tokenLiteral()}`
+      );
     }
   });
 });
