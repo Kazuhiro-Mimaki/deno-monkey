@@ -5,6 +5,7 @@ export type Node = {
    * デバッグとテストのためだけに用いる
    */
   tokenLiteral: () => Uint8;
+  string: () => Uint8;
 };
 
 export type Expression = Node & {
@@ -32,8 +33,16 @@ export class Program {
     this.statements = _program.statements;
   }
 
-  private tokenLiteral(): Uint8 {
+  public tokenLiteral(): Uint8 {
     return this.statements.length > 0 ? this.statements[0].tokenLiteral() : '';
+  }
+
+  public string(): Uint8 {
+    let out = '';
+    this.statements.forEach((s) => {
+      out += s.string();
+    });
+    return out;
   }
 }
 
@@ -54,6 +63,10 @@ export class Identifier implements Expression {
   public expressionNode() {}
   public tokenLiteral(): Uint8 {
     return this.token.literal;
+  }
+
+  public string(): Uint8 {
+    return this.value;
   }
 }
 
@@ -78,6 +91,15 @@ export class LetStatement implements Statement {
   public tokenLiteral(): Uint8 {
     return this.token.literal;
   }
+
+  public string(): Uint8 {
+    let out = `${this.tokenLiteral()} ${this.name.string()} = `;
+    if (this.value !== null) {
+      out += this.value.toString();
+    }
+    out += ';';
+    return out.toString();
+  }
 }
 
 interface IReturnStatement {
@@ -97,5 +119,41 @@ export class ReturnStatement implements Statement {
   public statementNode() {}
   public tokenLiteral(): Uint8 {
     return this.token.literal;
+  }
+
+  public string(): Uint8 {
+    let out = `${this.tokenLiteral()} `;
+    if (this.returnValue !== null) {
+      out += this.returnValue?.toString();
+    }
+    out += ';';
+    return out.toString();
+  }
+}
+
+type IExpressionStatement = {
+  token: Token;
+  expression?: Expression;
+};
+
+export class ExpressionStatement implements Statement {
+  readonly token: Token; // 式の最初のトークン
+  expression?: Expression | null;
+
+  constructor(_expressionStatement: IExpressionStatement) {
+    this.token = _expressionStatement.token;
+    this.expression = _expressionStatement.expression;
+  }
+
+  public statementNode() {}
+  public tokenLiteral(): Uint8 {
+    return this.token.literal;
+  }
+
+  public string(): Uint8 {
+    if (this.expression !== null) {
+      return this.expression?.string() || '';
+    }
+    return '';
   }
 }

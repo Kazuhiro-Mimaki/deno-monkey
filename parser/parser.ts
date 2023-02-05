@@ -1,6 +1,8 @@
 import { Lexer } from '../lexer/lexer.ts';
 import { token, Token, TokenType } from '../token/token.ts';
 import {
+  Expression,
+  ExpressionStatement,
   Identifier,
   LetStatement,
   Program,
@@ -8,36 +10,54 @@ import {
   Statement,
 } from '../ast/ast.ts';
 
+const LOWEST = 1;
+const EQUALS = 2;
+const LESSGREATER = 3;
+const SUM = 4;
+const PRODUCT = 5;
+const PREFIX = 6;
+const CALL = 7;
+
+type PrefixParseFn = () => Expression;
+type InfixParseFn = () => Expression;
+
 interface IParser {
   readonly l: Lexer;
+  errors: string[];
   curToken: Token;
   peekToken: Token;
-  errors: string[];
+  prefixParseFns: Map<TokenType, PrefixParseFn>;
+  infixParseFns: Map<TokenType, InfixParseFn>;
 }
 
 export class Parser {
   private readonly l: Lexer;
+  readonly errors: string[];
   private curToken: Token;
   private peekToken: Token;
-  readonly errors: string[];
+  private prefixParseFns: Map<TokenType, PrefixParseFn>;
+  private infixParseFns: Map<TokenType, InfixParseFn>;
 
   constructor(_parser: IParser) {
     this.l = _parser.l;
+    this.errors = _parser.errors;
     this.curToken = _parser.curToken;
     this.peekToken = _parser.peekToken;
-    this.errors = _parser.errors;
+    this.prefixParseFns = _parser.prefixParseFns;
+    this.infixParseFns = _parser.infixParseFns;
 
     // 2つトークンを読み込む。curTokenとpeekTokenの両方がセットされる。
     this.nextToken();
     this.nextToken();
+
+    this.prefixParseFns = new Map();
+    this.registerPrefix(token.IDENT, this.parseIdentifier);
   }
 
   private nextToken(): void {
     this.curToken = this.peekToken;
     this.peekToken = this.l.nextToken();
   }
-
-  // private parseLetStatement(): LetStatement {}
 
   public parseProgram(): Program {
     // ASTのルートノードを生成
@@ -63,7 +83,7 @@ export class Parser {
       case token.RETURN:
         return this.parseReturnStatement();
       default:
-        return null;
+        return this.parseExpressionStatement();
     }
   }
 
@@ -113,6 +133,20 @@ export class Parser {
     return stmt;
   }
 
+  private parseExpressionStatement(): ExpressionStatement {
+    const stmt = new ExpressionStatement({
+      token: this.curToken,
+    });
+
+    stmt.expression = this.parseExpression(LOWEST);
+
+    if (this.peekTokenIs(token.SEMICOLON)) {
+      this.nextToken();
+    }
+
+    return stmt;
+  }
+
   private curTokenIs(t: TokenType): boolean {
     return this.curToken.type === t;
   }
@@ -138,5 +172,30 @@ export class Parser {
   private peekError(t: TokenType) {
     const msg = `expected next token to be ${t}, go ${this.peekToken.type} instead`;
     this.errors.push(msg);
+  }
+
+  private registerPrefix(tokenType: TokenType, fn: PrefixParseFn) {
+    this.prefixParseFns.set(tokenType, fn);
+  }
+
+  private registerInfix(tokenType: TokenType, fn: InfixParseFn) {
+    this.infixParseFns.set(tokenType, fn);
+  }
+
+  private parseExpression(precedence: number): Expression | null {
+    // this.curToken.typeの前に関連づけられた構文解析関数があるかを確認している
+    const prefix =
+      // 関数 parseIdentifier に this をバインド
+      (this.prefixParseFns.get(this.curToken.type) as PrefixParseFn).bind(this); // [Function: parseIdentifier]
+    if (!prefix || prefix === null) return null;
+    const leftExp = prefix();
+    return leftExp;
+  }
+
+  private parseIdentifier(): Expression {
+    return new Identifier({
+      token: this.curToken,
+      value: this.curToken.literal,
+    });
   }
 }

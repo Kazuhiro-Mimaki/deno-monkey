@@ -1,6 +1,6 @@
 import { Parser } from './parser.ts';
 import { Lexer } from '../lexer/lexer.ts';
-import { LetStatement } from '../ast/ast.ts';
+import { ExpressionStatement, LetStatement } from '../ast/ast.ts';
 import { token, Token } from '../token/token.ts';
 
 const testLetStatement = (s: LetStatement, name: string): boolean => {
@@ -44,9 +44,11 @@ Deno.test('test let statements', () => {
   const l = new Lexer({ input });
   const p = new Parser({
     l: l,
+    errors: [],
     curToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
     peekToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
-    errors: [],
+    prefixParseFns: new Map(),
+    infixParseFns: new Map(),
   });
 
   const program = p.parseProgram();
@@ -85,9 +87,11 @@ Deno.test('test return statements', () => {
   const l = new Lexer({ input });
   const p = new Parser({
     l: l,
+    errors: [],
     curToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
     peekToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
-    errors: [],
+    prefixParseFns: new Map(),
+    infixParseFns: new Map(),
   });
 
   const program = p.parseProgram();
@@ -107,4 +111,36 @@ Deno.test('test return statements', () => {
       );
     }
   });
+});
+
+Deno.test('test identifier expression', () => {
+  const input = 'foobar;';
+
+  const l = new Lexer({ input });
+  const p = new Parser({
+    l: l,
+    errors: [],
+    curToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    peekToken: new Token({ type: token.DEFAULT, literal: 'DEFAULT' }),
+    prefixParseFns: new Map(),
+    infixParseFns: new Map(),
+  });
+
+  const program = p.parseProgram();
+  checkParserErrors(p);
+
+  if (program.statements.length !== 1) {
+    throw new Error(
+      `program has not enough statements. got ${program.statements.length}`
+    );
+  }
+  const ident = (program.statements[0] as ExpressionStatement).expression!;
+  if (ident.value !== 'foobar') {
+    throw new Error(`ident.value not 'foobar'. got ${ident.value}`);
+  }
+  if (ident.tokenLiteral() !== 'foobar') {
+    throw new Error(
+      `ident.tokenLiteral not 'foobar'. got ${ident.tokenLiteral()}`
+    );
+  }
 });
